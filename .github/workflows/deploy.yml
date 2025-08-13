@@ -24,5 +24,14 @@ jobs:
             git reset --hard
             git pull
             echo "${{ secrets.APP_ENV }}" > .env
-            # restart app if needed
-            # pm2 restart myapp
+
+            # Check if PM2 process exists
+            if pm2 list | grep -q "my_bookkeeping_butler"; then
+              pm2 restart my_bookkeeping_butler
+            else
+              # Start the app if not running
+              pm2 start npm --name "my_bookkeeping_butler" -- start
+            fi
+
+            # Save PM2 process list to auto-start on reboot
+            pm2 save
