@@ -160,7 +160,7 @@ export default function Home() {
           transition={{ duration: 0.6, delay : introAniDelay + 0.75 }}
           className="mt-12 text-gray-500 text-xs uppercase tracking-widest"
         >
-          &copy; 2025 - mybplus.com | coming 2025 | V 0.1
+          &copy; 2025 - mybplus.com | coming 2025 | V 0.2
         </motion.footer>
       </main>
       : null }
