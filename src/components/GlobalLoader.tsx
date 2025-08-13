@@ -15,7 +15,7 @@ export default function GlobalLoader({ loaded } : { loaded : Dispatch<SetStateAc
             setParHeight(0);
             setTimeout(() => {
                 loaded(false)
-            }, 1700);
+            }, 500);
         }
 
         animate(count, 100, { duration: 2, ease: "easeOut", onComplete: () => {
@@ -25,7 +25,7 @@ export default function GlobalLoader({ loaded } : { loaded : Dispatch<SetStateAc
       }, [count, rounded, loaded]);
 
     return (
-        <div className="fixed bg-black left-0 top-0 w-screen z-[50] transition-[height] duration-750 overflow-hidden" style={{ height : `${parHeight}vh`}}>
+        <div className="fixed bg-black left-0 top-0 w-screen z-[50] transition-[height] duration-500 overflow-hidden" style={{ height : `${parHeight}vh`}}>
             <div className="absolute right-0 bottom-0 z-[3] w-screen h-screen flex items-center justify-center">
                     <div className="p-10 block text-center">
                         <p className="text-white text-6xl font-black">{display}%</p>

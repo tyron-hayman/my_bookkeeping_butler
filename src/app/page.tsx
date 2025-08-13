@@ -15,6 +15,7 @@ export default function Home() {
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [processing, setProcessing] = useState<boolean>(false)
+  const [introAniDelay, _setIntroAniDelay] = useState<number>(0);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -52,12 +53,13 @@ export default function Home() {
     <>
       {isLoading ? <GlobalLoader loaded={setIsLoading} /> : null}
       <HomeScene />
+      {!isLoading ? 
       <main className="relative z-[1] text-gray-200 min-h-screen flex flex-col items-center justify-center font-mono px-5 py-10 md:py-0">
         {/* HEADER */}
         <motion.header 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.6, delay : introAniDelay }}
           className="max-w-3xl w-full border-b border-gray-700 pb-4 mb-8"
         >
           <h1 className="text-gray-400 tracking-widest text-sm uppercase">
@@ -74,7 +76,7 @@ export default function Home() {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay : 0.15 }}
+            transition={{ duration: 0.6, delay : introAniDelay + 0.15 }}
             className="text-xl text-stone-300 leading-relaxed"
           >
           Your ultimate tool for financial mastery. Offering personalized insights and recommendations to optimize spending and reach your financial goals faster.
@@ -83,7 +85,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay : 0.3 }}
+            transition={{ duration: 0.6, delay : introAniDelay + 0.3 }}
             className="border border-gray-700 p-6 space-y-4 bg-amber-500 rounded-3xl"
           >
             <h3 className="text-black text-sm tracking-widest uppercase">
@@ -98,7 +100,7 @@ export default function Home() {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay : 0.45 }}
+            transition={{ duration: 0.6, delay : introAniDelay + 0.45 }}
             className="text-gray-400 italic text-sm"
           >
             *Note: This document contains partial excerpts.  
@@ -109,7 +111,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay : 0.6 }}
+            transition={{ duration: 0.6, delay : introAniDelay + 0.6 }}
             className="pt-6 border-t border-gray-700"
           >
             {!submitted ? (
@@ -155,12 +157,13 @@ export default function Home() {
         <motion.footer
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay : 0.75 }}
+          transition={{ duration: 0.6, delay : introAniDelay + 0.75 }}
           className="mt-12 text-gray-500 text-xs uppercase tracking-widest"
         >
           &copy; 2025 - mybplus.com | coming 2025
         </motion.footer>
       </main>
+      : null }
     </>
   );
 }
