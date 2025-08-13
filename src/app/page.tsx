@@ -15,7 +15,7 @@ export default function Home() {
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [processing, setProcessing] = useState<boolean>(false)
-  const [introAniDelay, _setIntroAniDelay] = useState<number>(0);
+  const [introAniDelay] = useState<number>(0);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

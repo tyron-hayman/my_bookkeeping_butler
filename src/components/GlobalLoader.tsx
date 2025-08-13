@@ -1,5 +1,5 @@
 "use client";
-import { motion, useMotionValue, useTransform, animate } from "framer-motion";
+import { useMotionValue, useTransform, animate } from "framer-motion";
 import { useEffect, useState, Dispatch, SetStateAction } from "react";
 
 export default function GlobalLoader({ loaded } : { loaded : Dispatch<SetStateAction<boolean>>}) {
