@@ -20,27 +20,32 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            # Navigate to project folder
             cd ~/home/mybplus/htdocs/mybplus.com
 
-            # Pull latest changes
+            # Pull latest code
             git reset --hard
             git pull
 
-            # Update environment variables
+            # Write .env before build
             echo "${{ secrets.APP_ENV }}" > .env
 
             # Install dependencies
             npm install
 
-            # Build the Next.js app
+            # Build Next.js app
             npm run build
 
-            # Check if PM2 process exists
-            if pm2 list | grep -q "my_bookkeeping_butler"; then
-              pm2 restart my_bookkeeping_butler
+            # PM2 runtime variables
+            PM2_APP_NAME="my_bookkeeping_butler"
+            BREVO_API_KEY="${{ secrets.BREVO_API_KEY }}"
+
+            # Start or restart PM2 process
+            if pm2 list | grep -q "$PM2_APP_NAME"; then
+              pm2 restart $PM2_APP_NAME --update-env
             else
-              pm2 start npm --name "my_bookkeeping_butler" -- start
+              pm2 start npm --name "$PM2_APP_NAME" -- start
             fi
 
-            # Save PM2 process list to auto-start on reboot
+            # Save PM2 process list to persist across reboots
             pm2 save
