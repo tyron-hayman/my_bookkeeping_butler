@@ -20,7 +20,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd ~/my_bookkeeping_butler
+            cd ~/home/mybplus/htdocs/mybplus.com
 
             # Pull latest changes
             git reset --hard
