@@ -131,7 +131,7 @@ export default function Home() {
                     id="email"
                     name="email"
                     required
-                    placeholder="ENTER COMM EMAIL"
+                    placeholder="ENTER EMAIL"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="bg-black border border-gray-600 px-4 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-gray-300 w-full sm:w-64"
