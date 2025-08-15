@@ -71,24 +71,13 @@ jobs:
             pm2 save
             pm2 update
 
-      - name: Update deployment status (success)
-        if: success()
+      - name: Update deployment status on completion
+        if: always()
         uses: chrnorm/deployment-action@v2
         with:
           token: ${{ github.token }}
           environment-url: https://mybplus.com/
-          description: Successfully deployed to production VPS
+          description: Deployment to production VPS
           environment: production
-          initial-status: success
-          log-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
-      - name: Update deployment status (failure)
-        if: failure()
-        uses: chrnorm/deployment-action@v2
-        with:
-          token: ${{ github.token }}
-          environment-url: https://mybplus.com/
-          description: Deployment to production VPS failed
-          environment: production
-          initial-status: failure
+          initial-status: ${{ job.status }}
           log-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
