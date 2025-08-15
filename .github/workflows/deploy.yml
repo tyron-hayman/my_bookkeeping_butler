@@ -39,7 +39,7 @@ jobs:
             fi
 
             # Install dependencies
-            npm ci
+            npm install
 
             # Build Next.js
             npm run build
