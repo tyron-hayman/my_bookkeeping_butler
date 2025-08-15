@@ -8,10 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: production
-      url: https://mybplus.com/
-
     permissions:
       deployments: write
       contents: read
@@ -25,9 +21,7 @@ jobs:
         id: create-deployment
         with:
           token: ${{ github.token }}
-          environment-url: https://mybplus.com/
           description: Deploying to production VPS
-          environment: production
           initial-status: in_progress
 
       - name: Deploy over SSH
@@ -71,14 +65,26 @@ jobs:
             pm2 save
             pm2 update
 
-      - name: Update deployment status on completion
-        if: always()
+      - name: Update deployment status (success)
+        if: success()
         uses: chrnorm/deployment-action@v2
         with:
           token: ${{ github.token }}
           environment-url: https://mybplus.com/
-          description: Deployment to production VPS
+          description: Successfully deployed to production VPS
           environment: production
-          initial-status: ${{ job.status }}
+          initial-status: success
           log-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          auto-inactive: false
+          deployment-id: ${{ steps.create-deployment.outputs.deployment_id }}
+
+      - name: Update deployment status (failure)
+        if: failure()
+        uses: chrnorm/deployment-action@v2
+        with:
+          token: ${{ github.token }}
+          environment-url: https://mybplus.com/
+          description: Deployment to production VPS failed
+          environment: production
+          initial-status: failure
+          log-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          deployment-id: ${{ steps.create-deployment.outputs.deployment_id }}
