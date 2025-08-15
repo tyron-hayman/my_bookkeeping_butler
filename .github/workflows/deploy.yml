@@ -81,7 +81,6 @@ jobs:
           environment: production
           initial-status: success
           log-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          deployment-id: ${{ steps.create-deployment.outputs.deployment_id }}
 
       - name: Update deployment status (failure)
         if: failure()
@@ -93,4 +92,3 @@ jobs:
           environment: production
           initial-status: failure
           log-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          deployment-id: ${{ steps.create-deployment.outputs.deployment_id }}
