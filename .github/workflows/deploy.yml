@@ -81,3 +81,4 @@ jobs:
           environment: production
           initial-status: ${{ job.status }}
           log-url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          auto-inactive: false
