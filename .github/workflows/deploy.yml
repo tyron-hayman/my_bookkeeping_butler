@@ -46,7 +46,7 @@ jobs:
 
             # Restart PM2 with correct Node interpreter
             pm2 delete my_bookkeeping_butler || true
-            pm2 start npm --name "my_bookkeeping_butler" -- run start --interpreter $(which node)
+            pm2 start npm --name "my_bookkeeping_butler" -- run start --cwd /home/mybplus/htdocs/mybplus.com/my_bookkeeping_butler
 
             # Save PM2 config
             pm2 save
