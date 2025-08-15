@@ -36,6 +36,7 @@ jobs:
             # Ensure env file exists
             if [ ! -f .env.local ]; then
               echo "BREVO_API_KEY=${{ secrets.BREVO_API_KEY }}" >> .env.local
+              echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" >> .env.local
             fi
 
             # Install dependencies
