@@ -45,9 +45,9 @@ jobs:
             # Build Next.js
             npm run build
 
-            # Restart PM2 with correct Node interpreter
+            # Restart PM2
             pm2 delete my_bookkeeping_butler || true
-            pm2 start npm --name "my_bookkeeping_butler" -- run start --interpreter $(which node)
+            pm2 start npm --name "my_bookkeeping_butler" -- run start
 
             # Save PM2 config
             pm2 save
