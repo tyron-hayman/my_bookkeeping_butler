@@ -1,169 +1,146 @@
-'use client'
-import { FormEvent, useState } from "react";
-import { motion } from "framer-motion";
-import GlobalLoader from "@/components/GlobalLoader";
-import dynamic from 'next/dynamic';
-import { isValidEmail } from "@/utils/formtools";
-import { toast } from "sonner"
-
-const HomeScene = dynamic(() => import('@/components/scenes/HomeScene'), {
-  ssr: false,
-});
+"use client";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Home() {
-  const [email, setEmail] = useState<string>("");
-  const [submitted, setSubmitted] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [processing, setProcessing] = useState<boolean>(false)
-  const [introAniDelay] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [movieData, setMovieData] = useState<GlobalMovieArr | null>(null);
+  const [activeMovies, setActiveMovies] = useState<boolean>(true);
+  const [activeTitle, setActiveTitle] = useState<string | null>(null);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setProcessing(true)
-    if ( isValidEmail(email) ) {
+  useEffect(() => {
+    const getMovies = async () => {
       try {
-        const res = await fetch('/api/addContacts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email })
-        });
-
-        await res.json();
-
-        if (!res.ok) {
-          setProcessing(false)
-          return;
-        }
-    
-        setProcessing(false)
+        const movies = await fetch("/api/getAllMovies");
+        const data = await movies.json();
+        setMovieData(data.data);
       } catch (error) {
-        console.error('Error adding contact:', error);
-        setProcessing(false)
+        console.log(error);
+      } finally {
+        setIsLoading(false);
       }
-      setSubmitted(true);
-    } else {
-      toast.error("An error occured", {
-        description: "Please ensure you're using a valid email.",
-      })
-      setProcessing(false)
-    }
-  };
+    };
+
+    getMovies();
+  }, []);
 
   return (
-    <>
-      {isLoading ? <GlobalLoader loaded={setIsLoading} /> : null}
-      <HomeScene />
-      {!isLoading ? 
-      <main className="relative z-[1] text-gray-200 min-h-screen flex flex-col items-center justify-center font-mono px-5 py-10 md:py-0">
-        {/* HEADER */}
-        <motion.header 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay : introAniDelay }}
-          className="max-w-3xl w-full border-b border-gray-700 pb-4 mb-8"
+    <main className="min-h-screen relative bg-black">
+      <div className="w-full min-h-screen relative z-[2] p-4 flex items-center justify-center">
+        <div
+          className="container flex flex-nowrap gap-4 overflow-hidden"
+          onMouseLeave={() => setActiveTitle(null)}
         >
-          <h1 className="text-gray-400 tracking-widest text-sm uppercase">
-            Document Ref: MYB-2025 / Rev. A
-          </h1>
-          <h2 className="text-4xl font-bold mt-2 text-white">MISSION - PRELAUNCH</h2>
-          <p className="text-gray-400 text-sm mt-1">
-            Operations Manual – Excerpt
-          </p>
-        </motion.header>
-
-        {/* MAIN CONTENT */}
-        <section className="max-w-3xl w-full space-y-6">
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay : introAniDelay + 0.15 }}
-            className="text-xl text-stone-300 leading-relaxed"
-          >
-          Your ultimate tool for financial mastery. Offering personalized insights and recommendations to optimize spending and reach your financial goals faster.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay : introAniDelay + 0.3 }}
-            className="border border-gray-700 p-6 space-y-4 bg-amber-500 rounded-3xl"
-          >
-            <h3 className="text-black text-sm tracking-widest uppercase">
-              Primary Functions
-            </h3>
-            <ul className="list-disc list-inside text-black text-md space-y-1">
-              <li>Track expenses and view trends.</li>
-              <li>Strategic course adjustments - budgeting suggestions.</li>
-            </ul>
-          </motion.div>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay : introAniDelay + 0.45 }}
-            className="text-gray-400 italic text-sm"
-          >
-            *Note: This document contains partial excerpts.  
-            Full operational parameters classified.
-          </motion.p>
-
-          {/* EMAIL FORM */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay : introAniDelay + 0.6 }}
-            className="pt-6 border-t border-gray-700"
-          >
-            {!submitted ? (
-              <form
-                onSubmit={handleSubmit}
-                className="flex flex-col sm:flex-row gap-3 items-center mt-4"
-              >
-                <label
-                  htmlFor="email"
-                  className="text-gray-400 uppercase tracking-widest text-sm"
-                >
-                  Notification Frequency: Launch Event Only
-                </label>
-                <div className="flex w-full sm:w-auto gap-2">
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    required
-                    placeholder="ENTER EMAIL"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="bg-black border border-gray-600 px-4 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-gray-300 w-full sm:w-64"
-                  />
-                  <button
-                    type="submit"
-                    className="border border-gray-500 px-6 py-2 text-sm uppercase tracking-widest hover:bg-gray-200 hover:text-black transition-colors duration-300"
-                    disabled={processing ? true : false}
-                  >
-                    {processing ? 'Transmitting' : 'Confirm'}
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <p className="text-amber-500 text-sm mt-4">
-                Transmission received. Stand by for launch sequence.
-              </p>
-            )}
-          </motion.div>
-        </section>
-
-        {/* FOOTER */}
-        <motion.footer
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay : introAniDelay + 0.75 }}
-          className="mt-12 text-gray-500 text-xs uppercase tracking-widest"
-        >
-          &copy; 2025 - mybplus.com | coming 2025 | V 0.25
-        </motion.footer>
-      </main>
-      : null }
-    </>
+          {isLoading ? (
+            <div className="animate-pulse col-span-1 aspect-[9/16] !bg-cover rounded-3xl border-1 border-white/10 border-solid"></div>
+          ) : (
+            <>
+              {movieData ? (
+                <>
+                  {movieData.results.length > 0 ? (
+                    <>
+                      {movieData.results
+                        .slice(0, 7)
+                        .map((movie: MovieData, index: number) => {
+                          return (
+                            <MovieSlide
+                              key={movie.id}
+                              {...movie}
+                              layer={index}
+                              active={activeMovies}
+                              setActive={setActiveMovies}
+                              setTitle={setActiveTitle}
+                            />
+                          );
+                        })}
+                    </>
+                  ) : null}
+                </>
+              ) : null}
+            </>
+          )}
+        </div>
+      </div>
+      {activeTitle ? (
+        <div className="fixed inset-x-0 bottom-5 z-[1] flex items-center justify-center">
+          <AnimatePresence>
+            <motion.h2
+              key={activeTitle}
+              className="text-amber-500 text-[8lvw] leading-[1] font-black uppercase text-center block absolute inset-x-0 bottom-0"
+              initial={{ y: 10, filter: "blur(8px)", opacity: 0 }}
+              animate={{ y: 0, filter: "blur(0px)", opacity: 1 }}
+              exit={{ y: 10, filter: "blur(8px)", opacity: 0 }}
+            >
+              {activeTitle}
+            </motion.h2>
+          </AnimatePresence>
+        </div>
+      ) : null}
+    </main>
   );
 }
+
+const MovieSlide = ({
+  id,
+  title,
+  poster_path,
+  layer,
+  active,
+  setActive,
+  setTitle,
+}: {
+  id: number;
+  title: string;
+  poster_path: string;
+  layer: number;
+  active: boolean;
+  setActive: React.Dispatch<React.SetStateAction<boolean>>;
+  setTitle: React.Dispatch<React.SetStateAction<string | null>>;
+}) => {
+  const styles = {
+    background: `url(https://image.tmdb.org/t/p/w1920/${poster_path}) center center no-repeat`,
+    zIndex: layer,
+  };
+  const variants = {
+    visible: (index: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: { delay: index * 0.1, duration: 0.5, easing: "anticipate" },
+    }),
+    hidden: { opacity: 0, y: 100 },
+    exit: (index: number) => ({
+      opacity: 0,
+      y: 100,
+      transition: { delay: index * 0.1, duration: 0.5, easing: "anticipate" },
+    }),
+  };
+
+  const goToMovie = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    movie_id: number
+  ): void => {
+    e.preventDefault();
+    setActive(false);
+    console.log(movie_id);
+  };
+  return (
+    <motion.div
+      className="grow h-[50lvh] aspect-[9/16] !bg-cover border-1 border-white/5 border-solid relative group cursor-pointer rounded-2xl overflow-hidden bg-black"
+      variants={variants}
+      initial="hidden"
+      animate={active ? "visible" : "exit"}
+      custom={layer}
+      onClick={(e) => goToMovie(e, id)}
+      onMouseEnter={() => setTitle(title)}
+    >
+      <div
+        className="absolute inset-0 !bg-cover z-[1] saturate-0 opacity-30"
+        style={styles}
+      ></div>
+      <div
+        className="absolute inset-y-0 !bg-cover z-[2] left-[50%] w-[0%] transition-all duration-500 group-hover:w-[100%] group-hover:left-[0%]"
+        style={styles}
+      ></div>
+    </motion.div>
+  );
+};

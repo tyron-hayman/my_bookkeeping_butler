@@ -3,22 +3,34 @@ import { FormEvent, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { isValidEmail } from "@/utils/formtools";
 import { toast } from "sonner";
+import { supabase } from "@/app/utils/supabaseClient";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/utils/supabase";
 
 export default function Home() {
   const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
   const [processing, setProcessing] = useState<boolean>(false);
   const [introAniDelay] = useState<number>(0);
   const router = useRouter();
 
-  useEffect(() => {});
+  useEffect(() => {
+    // If already authenticated, redirect to the app
+    let isMounted = true;
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!isMounted) return;
+      if (data.session) {
+        router.replace("/dashboard");
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, [router]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!email || !password) {
+    if (!email) {
       toast.error("Please fill in all fields");
       return;
     }
@@ -31,30 +43,17 @@ export default function Home() {
     setProcessing(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password,
-      });
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
 
       if (error) {
-        toast.error("Login failed", {
-          description: error.message,
-        });
-        setProcessing(false);
+        toast.error("Error:", { description: error.message });
         return;
       }
 
-      if (data.user) {
-        toast.success("Login Successful!", {
-          description: "Redirecting to dashboard...",
-        });
-
-        // Redirect to dashboard after successful login
-        router.push("/dashboard");
-      }
-    } catch (error) {
-      console.error("An error occurred during login:", error);
-      toast.error("An unexpected error occurred. Please try again.");
+      toast.success("Email Sent!");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      toast.error("Please try again.", { description: message });
     } finally {
       setProcessing(false);
     }
@@ -73,7 +72,7 @@ export default function Home() {
           <h1 className="text-gray-400 tracking-widest text-sm uppercase">
             Document Ref: MYB-2025 / Rev. A
           </h1>
-          <h2 className="text-4xl font-bold mt-2 text-white">LOGIN</h2>
+          <h2 className="text-4xl font-bold mt-2 text-white">Password Reset</h2>
         </motion.header>
 
         {/* LOGIN FORM */}
@@ -103,25 +102,6 @@ export default function Home() {
                 disabled={processing}
               />
             </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-300 mb-2"
-              >
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-black border border-gray-900 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-white placeholder-gray-400"
-                placeholder="Enter your password"
-                required
-                disabled={processing}
-              />
-            </div>
           </div>
 
           <button
@@ -129,15 +109,15 @@ export default function Home() {
             disabled={processing}
             className="w-full bg-amber-500 hover:bg-amber-600 disabled:bg-amber-700 disabled:cursor-not-allowed text-black font-bold py-3 px-4 rounded-lg transition-colors duration-200"
           >
-            {processing ? "Signing In..." : "Sign In"}
+            {processing ? "Transmitting..." : "Send Link"}
           </button>
 
           <div className="text-center">
             <a
-              href="#"
+              href="/login"
               className="text-amber-400 hover:text-amber-300 text-sm transition-colors duration-200"
             >
-              Forgot your password?
+              Back To Sign In
             </a>
           </div>
         </motion.form>
