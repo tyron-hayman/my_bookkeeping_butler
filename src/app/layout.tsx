@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import Header from "@/components/HeaderComponent";
+import { TransitionProvider } from "@/contexts/PageTransition";
 import type { Viewport } from "next";
 import "./globals.css";
 
@@ -31,8 +32,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${outfit.variable} antialiased`}>
-        <Header />
-        {children}
+        <TransitionProvider>
+          <Header />
+          {children}
+        </TransitionProvider>
         <Toaster position="bottom-center" />
       </body>
     </html>

@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTransition } from "@/contexts/PageTransition";
+import GlobalNav from "@/components/GlobalNav";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [movieData, setMovieData] = useState<GlobalMovieArr | null>(null);
-  const [activeMovies, setActiveMovies] = useState<boolean>(true);
   const [activeTitle, setActiveTitle] = useState<string | null>(null);
 
   useEffect(() => {
@@ -25,7 +26,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen relative bg-black">
+    <main className="min-h-screen relative">
       <div className="w-full min-h-screen relative z-[2] p-4 flex items-center justify-center">
         <div
           className="container flex flex-nowrap gap-4 overflow-hidden"
@@ -47,8 +48,6 @@ export default function Home() {
                               key={movie.id}
                               {...movie}
                               layer={index}
-                              active={activeMovies}
-                              setActive={setActiveMovies}
                               setTitle={setActiveTitle}
                             />
                           );
@@ -61,12 +60,12 @@ export default function Home() {
           )}
         </div>
       </div>
-      {activeTitle ? (
-        <div className="fixed inset-x-0 bottom-5 z-[1] flex items-center justify-center">
+      <div className="fixed inset-x-0 top-32 z-[3] pointer-events-none">
+        {activeTitle ? (
           <AnimatePresence>
             <motion.h2
               key={activeTitle}
-              className="text-amber-500 text-[8lvw] leading-[1] font-black uppercase text-center block absolute inset-x-0 bottom-0"
+              className="text-amber-400 text-5xl leading-[1] font-black uppercase text-center block absolute bottom-0 left-0 w-full"
               initial={{ y: 10, filter: "blur(8px)", opacity: 0 }}
               animate={{ y: 0, filter: "blur(0px)", opacity: 1 }}
               exit={{ y: 10, filter: "blur(8px)", opacity: 0 }}
@@ -74,8 +73,9 @@ export default function Home() {
               {activeTitle}
             </motion.h2>
           </AnimatePresence>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
+      <GlobalNav />
     </main>
   );
 }
@@ -85,18 +85,15 @@ const MovieSlide = ({
   title,
   poster_path,
   layer,
-  active,
-  setActive,
   setTitle,
 }: {
   id: number;
   title: string;
   poster_path: string;
   layer: number;
-  active: boolean;
-  setActive: React.Dispatch<React.SetStateAction<boolean>>;
   setTitle: React.Dispatch<React.SetStateAction<string | null>>;
 }) => {
+  const { navigate } = useTransition();
   const styles = {
     background: `url(https://image.tmdb.org/t/p/w1920/${poster_path}) center center no-repeat`,
     zIndex: layer,
@@ -105,12 +102,12 @@ const MovieSlide = ({
     visible: (index: number) => ({
       opacity: 1,
       y: 0,
-      transition: { delay: index * 0.1, duration: 0.5, easing: "anticipate" },
+      transition: { delay: index * 0.05, duration: 0.5, easing: "anticipate" },
     }),
-    hidden: { opacity: 0, y: 100 },
+    hidden: { opacity: 0, y: 200 },
     exit: (index: number) => ({
       opacity: 0,
-      y: 100,
+      y: 200,
       transition: { delay: index * 0.1, duration: 0.5, easing: "anticipate" },
     }),
   };
@@ -120,7 +117,7 @@ const MovieSlide = ({
     movie_id: number
   ): void => {
     e.preventDefault();
-    setActive(false);
+    navigate(`/movie/${movie_id}`);
     console.log(movie_id);
   };
   return (
@@ -128,7 +125,7 @@ const MovieSlide = ({
       className="grow h-[50lvh] aspect-[9/16] !bg-cover border-1 border-white/5 border-solid relative group cursor-pointer rounded-2xl overflow-hidden bg-black"
       variants={variants}
       initial="hidden"
-      animate={active ? "visible" : "exit"}
+      animate="visible"
       custom={layer}
       onClick={(e) => goToMovie(e, id)}
       onMouseEnter={() => setTitle(title)}
@@ -138,7 +135,7 @@ const MovieSlide = ({
         style={styles}
       ></div>
       <div
-        className="absolute inset-y-0 !bg-cover z-[2] left-[50%] w-[0%] transition-all duration-500 group-hover:w-[100%] group-hover:left-[0%]"
+        className="absolute inset-y-0 !bg-cover z-[2] left-[50%] w-[0%] transition-all duration-500 group-hover:w-[100%] group-hover:left-[0%] group-hover:scale-110"
         style={styles}
       ></div>
     </motion.div>
