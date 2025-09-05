@@ -1,16 +1,20 @@
 "use client";
 import { use, useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { CircleArrowDown } from "lucide-react";
 
 export default function BlogPostPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const router = useRouter();
   const { id } = use(params);
   const [movieData, setMovieData] = useState<MovieDataSingle | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-
+  const listClass =
+    "border-1 border-amber-500 border-solid rounded-full px-4 py-2 text-white text-lg";
   const bgVariants = {
     initial: { opacity: 0, scale: 1.1 },
     visible: {
@@ -20,11 +24,28 @@ export default function BlogPostPage({
     },
   };
 
+  const contentVariants = {
+    visible: (index: number) => ({
+      opacity: 1,
+      transition: { delay: index * 0.1, duration: 1, easing: "easeOut" },
+    }),
+    hidden: { opacity: 0 },
+    exit: (index: number) => ({
+      opacity: 0,
+      transition: { delay: index * 0.1, duration: 1, easing: "easeOut" },
+    }),
+  };
+
   useEffect(() => {
     const getMovies = async () => {
       try {
         const movie = await fetch(`/api/getTargetMovie?movieid=${id}`);
         const data = await movie.json();
+
+        if (data.data.status_code == 34) {
+          router.push("/");
+        }
+
         setMovieData(data.data);
         console.log(data);
       } catch (error) {
@@ -57,7 +78,7 @@ export default function BlogPostPage({
   };
 
   return (
-    <main className="min-h-screen relative">
+    <main className="relative">
       {!isLoading ? (
         <>
           {movieData ? (
@@ -73,26 +94,27 @@ export default function BlogPostPage({
                   }}
                 ></motion.div>
               </div>
-              <div className="relative z-[1]">
-                <div className="w-full px-20 pt-30">
-                  <h1 className="text-8xl leading-[1] text-amber-500 font-black uppercase">
+              <div className="w-full relative z-[1] px-10 h-screen min-h-screen flex items-end">
+                <motion.div
+                  className="mb-10"
+                  variants={contentVariants}
+                  initial="hidden"
+                  animate="visible"
+                  custom={2}
+                >
+                  <h1 className="text-[10lvw] leading-[1] text-amber-500 font-black uppercase">
                     {movieData.original_title}
                   </h1>
-                </div>
-                <div className="pt-20 pb-40 w-full px-20 flex items-start justify-between">
-                  <div className="w-1/3">
-                    <h2 className="text-white text-4xl font-black uppercase">
-                      Release
-                    </h2>
-                    <p className="text-stone-600 text-4xl">
-                      {formatDate(movieData.release_date)}
-                    </p>
-                  </div>
-                </div>
-                <div className="w-1/3 mx-auto">
-                  <p className="text-white text-3xl font-normal leading-relaxed">
-                    {movieData.overview}
+                  <p className="text-[4lvw] text-white font-normal leading-snug">
+                    {movieData.tagline}
                   </p>
+                </motion.div>
+                <div className="absolute right-10 bottom-10 z-[2]">
+                  <CircleArrowDown
+                    className="animate-bounce"
+                    size={64}
+                    color="#ffffff"
+                  />
                 </div>
               </div>
             </>
