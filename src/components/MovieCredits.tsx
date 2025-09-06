@@ -55,8 +55,7 @@ export default function MovieCredits({ id }: { id: number }) {
                     initial="hidden"
                     whileInView="visible"
                     custom={index}
-                    viewport={{ amount: 0.3, once: true }}
-                    exit="exit"
+                    viewport={{ once: true }}
                   >
                     <div className="w-full aspect-[9/16] rounded-3xl overflow-hidden relative saturate-0">
                       <Image

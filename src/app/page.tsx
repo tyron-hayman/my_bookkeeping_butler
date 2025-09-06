@@ -3,11 +3,13 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTransition } from "@/contexts/PageTransition";
 import GlobalNav from "@/components/GlobalNav";
+import loadingStore from "@/stores/loadingStore";
+import HomeScene from "@/components/scenes/HomeScene";
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [movieData, setMovieData] = useState<GlobalMovieArr | null>(null);
   const [activeTitle, setActiveTitle] = useState<string | null>(null);
+  const globalLoadingDone = loadingStore((state) => state.setLoadingDone);
 
   useEffect(() => {
     const getMovies = async () => {
@@ -18,7 +20,9 @@ export default function Home() {
       } catch (error) {
         console.log(error);
       } finally {
-        setIsLoading(false);
+        setTimeout(() => {
+          globalLoadingDone();
+        }, 1000);
       }
     };
 
@@ -27,37 +31,34 @@ export default function Home() {
 
   return (
     <main className="min-h-screen relative">
+      <HomeScene />
       <div className="w-full min-h-screen relative z-[2] p-4 flex items-center justify-center">
         <div
-          className="container flex flex-nowrap gap-4 overflow-hidden"
+          className="container flex flex-nowrap gap-4"
           onMouseLeave={() => setActiveTitle(null)}
         >
-          {isLoading ? (
-            <div className="animate-pulse col-span-1 aspect-[9/16] !bg-cover rounded-3xl border-1 border-white/10 border-solid"></div>
-          ) : (
-            <>
-              {movieData ? (
-                <>
-                  {movieData.results.length > 0 ? (
-                    <>
-                      {movieData.results
-                        .slice(0, 7)
-                        .map((movie: MovieData, index: number) => {
-                          return (
-                            <MovieSlide
-                              key={movie.id}
-                              {...movie}
-                              layer={index}
-                              setTitle={setActiveTitle}
-                            />
-                          );
-                        })}
-                    </>
-                  ) : null}
-                </>
-              ) : null}
-            </>
-          )}
+          <>
+            {movieData ? (
+              <>
+                {movieData.results.length > 0 ? (
+                  <>
+                    {movieData.results
+                      .slice(0, 7)
+                      .map((movie: MovieData, index: number) => {
+                        return (
+                          <MovieSlide
+                            key={movie.id}
+                            {...movie}
+                            layer={index}
+                            setTitle={setActiveTitle}
+                          />
+                        );
+                      })}
+                  </>
+                ) : null}
+              </>
+            ) : null}
+          </>
         </div>
       </div>
       <div className="fixed inset-x-0 top-32 z-[3] pointer-events-none">
@@ -102,7 +103,7 @@ const MovieSlide = ({
     visible: (index: number) => ({
       opacity: 1,
       y: 0,
-      transition: { delay: index * 0.05, duration: 0.5, easing: "anticipate" },
+      transition: { delay: index * 0.1, duration: 0.5, easing: "easeInOut" },
     }),
     hidden: { opacity: 0, y: 200 },
     exit: (index: number) => ({
@@ -122,10 +123,11 @@ const MovieSlide = ({
   };
   return (
     <motion.div
-      className="grow h-[50lvh] aspect-[9/16] !bg-cover border-1 border-white/5 border-solid relative group cursor-pointer rounded-2xl overflow-hidden bg-black"
+      className="grow h-[50lvh] aspect-[9/16] !bg-cover border-1 border-white/5 border-solid relative group cursor-pointer rounded-2xl overflow-hidden"
       variants={variants}
       initial="hidden"
       animate="visible"
+      whileHover={{ scale: 1.1 }}
       custom={layer}
       onClick={(e) => goToMovie(e, id)}
       onMouseEnter={() => setTitle(title)}

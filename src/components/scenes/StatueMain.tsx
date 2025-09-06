@@ -10,7 +10,7 @@ export default function StatueMain() {
 
   const uniforms = useRef({
     uTime: { value: 0 },
-    uSpeed: { value : 0.05 }
+    uSpeed: { value: 0.05 },
   }).current;
 
   const vertexShader = `
@@ -21,20 +21,20 @@ void main() {
     gl_Position = position;
 }
   `;
-  
+
   const fragmentShader = `
 uniform float uTime;
 uniform float uSpeed; // Master speed control
 varying vec2 vUv;
 
 #define COL_BASE vec3(0.0,0.0,0.01)
-#define COL_CONT vec3(0.11372549019607843,0.38823529411764707,0.4196078431372549)
+#define COL_CONT vec3(0.1,0.1,0.1)
 #define COL_FREQ vec3(1.,1.,1.)
-#define COL_PHAS vec3(1.,0.,1.)
+#define COL_PHAS vec3(1.,1.,1.)
 
 #define ROT_SPEED 0.4
 #define WARP_INIT 1.
-#define WARP_ITER 6.
+#define WARP_ITER 1.
 #define WARP_AMPL 1.3
 
 vec3 palette(float t) {

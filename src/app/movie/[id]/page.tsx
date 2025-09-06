@@ -3,6 +3,8 @@ import { use, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { CircleArrowDown } from "lucide-react";
+import loadingStore from "@/stores/loadingStore";
+import MovieCredits from "@/components/MovieCredits";
 
 export default function BlogPostPage({
   params,
@@ -12,9 +14,7 @@ export default function BlogPostPage({
   const router = useRouter();
   const { id } = use(params);
   const [movieData, setMovieData] = useState<MovieDataSingle | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const listClass =
-    "border-1 border-amber-500 border-solid rounded-full px-4 py-2 text-white text-lg";
+  const globalLoadingDone = loadingStore((state) => state.setLoadingDone);
   const bgVariants = {
     initial: { opacity: 0, scale: 1.1 },
     visible: {
@@ -51,7 +51,7 @@ export default function BlogPostPage({
       } catch (error) {
         console.log(error);
       } finally {
-        setIsLoading(false);
+        globalLoadingDone();
       }
     };
 
@@ -79,50 +79,64 @@ export default function BlogPostPage({
 
   return (
     <main className="relative">
-      {!isLoading ? (
+      {movieData ? (
         <>
-          {movieData ? (
-            <>
-              <div className="fixed overflow-hidden inset-x-0 bottom-0 top-0 z-[0]">
-                <motion.div
-                  className="absolute inset-x-0 bottom-0 top-0 z-[1] !bg-cover"
-                  variants={bgVariants}
-                  initial="initial"
-                  animate="visible"
-                  style={{
-                    background: `url(https://image.tmdb.org/t/p/w1920/${movieData.backdrop_path}) center center no-repeat`,
-                  }}
-                ></motion.div>
+          <div className="fixed overflow-hidden inset-x-0 bottom-0 top-0 z-[0]">
+            <motion.div
+              className="absolute inset-x-0 bottom-0 top-0 z-[1] !bg-cover"
+              variants={bgVariants}
+              initial="initial"
+              animate="visible"
+              style={{
+                background: `url(https://image.tmdb.org/t/p/w1920/${movieData.backdrop_path}) center center no-repeat`,
+              }}
+            ></motion.div>
+          </div>
+          <div className="w-full relative z-[1] px-10 h-screen min-h-screen flex items-end">
+            <motion.div
+              className="mb-10"
+              variants={contentVariants}
+              initial="hidden"
+              animate="visible"
+              custom={2}
+            >
+              <h1 className="text-[10lvw] leading-[1] text-amber-500 font-black uppercase">
+                {movieData.original_title}
+              </h1>
+              <p className="text-[4lvw] text-white font-normal leading-snug">
+                {movieData.tagline}
+              </p>
+            </motion.div>
+            <div className="absolute right-10 bottom-10 z-[2]">
+              <CircleArrowDown
+                className="animate-bounce"
+                size={64}
+                color="#ffffff"
+              />
+            </div>
+          </div>
+          <div className="bg-linear-to-b from-black/0 to-black to-30% relative z-[2]">
+            <div className="container mx-auto pt-60 flex items-start justify-between">
+              <div className="w-3/12">
+                <h2 className="text-white text-5xl font-black">Overview</h2>
               </div>
-              <div className="w-full relative z-[1] px-10 h-screen min-h-screen flex items-end">
-                <motion.div
-                  className="mb-10"
-                  variants={contentVariants}
-                  initial="hidden"
-                  animate="visible"
-                  custom={2}
-                >
-                  <h1 className="text-[10lvw] leading-[1] text-amber-500 font-black uppercase">
-                    {movieData.original_title}
-                  </h1>
-                  <p className="text-[4lvw] text-white font-normal leading-snug">
-                    {movieData.tagline}
-                  </p>
-                </motion.div>
-                <div className="absolute right-10 bottom-10 z-[2]">
-                  <CircleArrowDown
-                    className="animate-bounce"
-                    size={64}
-                    color="#ffffff"
-                  />
-                </div>
+              <div className="w-7/12">
+                <p className="text-white text-xl font-normal leading-relaxed">
+                  {movieData.overview}
+                </p>
               </div>
-            </>
-          ) : null}
+            </div>
+            <div className="container mx-auto py-60 flex items-start justify-between">
+              <div className="w-3/12">
+                <h2 className="text-white text-5xl font-black">Notable Cast</h2>
+              </div>
+              <div className="w-7/12">
+                <MovieCredits id={movieData.id} />
+              </div>
+            </div>
+          </div>
         </>
-      ) : (
-        <p className="text-white">loading</p>
-      )}
+      ) : null}
     </main>
   );
 }
